@@ -4,47 +4,73 @@ from google.adk.agents.remote_a2a_agent import (
     AGENT_CARD_WELL_KNOWN_PATH,
 )
 
-# Connect to the remote Flight Agent using its Agent Card
+
+# Remote Flight Agent
 flight_agent = RemoteA2aAgent(
     name="flight_agent",
-    description=(
-        "A remote specialist agent that searches and compares "
-        "flights between airports."
-    ),
+    description="Searches and compares flight options.",
     agent_card=(
-        "http://localhost:8001"+ AGENT_CARD_WELL_KNOWN_PATH
+        "http://localhost:8001"
+        + AGENT_CARD_WELL_KNOWN_PATH
     ),
     use_legacy=False,
 )
 
+
+# Remote Hotel Agent
+hotel_agent = RemoteA2aAgent(
+    name="hotel_agent",
+    description="Searches and compares hotel options.",
+    agent_card=(
+        "http://localhost:8002"
+        + AGENT_CARD_WELL_KNOWN_PATH
+    ),
+    use_legacy=False,
+)
+
+
 # Main Travel Orchestrator
 root_agent = Agent(
     name="travel_orchestrator",
-    model="gemini-3.6-flash",
-    description=(
-        "A travel planning orchestrator that delegates flight "
-        "search requests to a remote Flight Agent."
-    ),
+    model="gemini-flash-latest",
+    description="Coordinates flight and hotel search agents.",
     instruction="""
     You are a professional Travel Orchestrator.
 
-    You coordinate independent specialist agents.
+    You have two specialist agents:
 
-    Your available specialist:
-    - flight_agent: Searches and compares flights.
+    1. flight_agent:
+       Searches and compares flights.
 
-    Rules:
-    1. Understand the user's travel request.
-    2. If the user asks to search for flights,
-       delegate the task to flight_agent.
-    3. Pass the origin, destination, and travel date
-       clearly to flight_agent.
-    4. Wait for the remote agent's response.
-    5. Summarize the returned flight options.
-    6. Never invent flight availability or prices.
-    7. Do not claim a flight is booked.
-    8. If required travel details are missing,
-       ask the user for clarification.
+    2. hotel_agent:
+       Searches and compares hotels.
+
+    Your responsibilities:
+
+    - Understand the user's travel requirements.
+    - Delegate flight requests to flight_agent.
+    - Delegate hotel requests to hotel_agent.
+    - Pass all relevant information to the correct agent.
+    - Wait for the specialist agent's response.
+    - Summarize the returned results.
+    - Never invent availability or prices.
+    - Never claim a booking has been confirmed.
+
+    For hotel searches, collect:
+    - Destination city
+    - Check-in date
+    - Check-out date
+    - Number of guests
+
+    For flight searches, collect:
+    - Origin
+    - Destination
+    - Travel date
+
+    If required information is missing, ask the user.
     """,
-    sub_agents=[flight_agent],
+    sub_agents=[
+        flight_agent,
+        hotel_agent
+    ]
 )
