@@ -12,8 +12,7 @@ flight_agent = RemoteA2aAgent(
         "flights between airports."
     ),
     agent_card=(
-        "http://127.0.0.1:8001"
-        + AGENT_CARD_WELL_KNOWN_PATH
+        "http://localhost:8001"+ AGENT_CARD_WELL_KNOWN_PATH
     ),
     use_legacy=False,
 )
