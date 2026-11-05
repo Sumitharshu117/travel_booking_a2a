@@ -1,5 +1,19 @@
 from google.adk.agents import Agent
+import os
+from pathlib import Path
+from dotenv import load_dotenv
 
+# Find the project root directory
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+# Load the root .env file
+load_dotenv(PROJECT_ROOT / ".env")
+
+# Verify that the API key exists
+if not os.getenv("GOOGLE_API_KEY"):
+    raise RuntimeError(
+        "GOOGLE_API_KEY not found. Check your root .env file."
+    )
 
 def search_hotels(
     city: str,
@@ -70,7 +84,7 @@ def search_hotels(
 
 root_agent = Agent(
     name="hotel_agent",
-    model="gemini-flash-latest",
+    model="gemini-3.6-flash",
     description=(
         "A hotel specialist that searches and compares "
         "hotel options for travelers."
