@@ -51,6 +51,33 @@ transport_agent = RemoteA2aAgent(
     use_legacy=False,
 )
 
+# Activities Agent
+activities_agent = RemoteA2aAgent(
+    name="activities_agent",
+    description=(
+        "Searches sightseeing tours, tourist attractions "
+        "and activities."
+    ),
+    agent_card=(
+        "http://localhost:8004"
+        + AGENT_CARD_WELL_KNOWN_PATH
+    ),
+    use_legacy=False,
+)
+
+# Payment Agent
+payment_agent = RemoteA2aAgent(
+    name="payment_agent",
+    description=(
+        "Validates payment requests and processes "
+        "mock payments after user approval."
+    ),
+    agent_card=(
+        "http://localhost:8005"
+        + AGENT_CARD_WELL_KNOWN_PATH
+    ),
+    use_legacy=False,
+)
 
 # Main Orchestrator
 root_agent = Agent(
@@ -59,52 +86,41 @@ root_agent = Agent(
     description="Coordinates travel booking specialist agents.",
 
     instruction="""
-    You are a professional Travel Orchestrator.
+        You are a Travel Booking Orchestrator.
+        plan accroding to the user's travel request by coordinating with specialist agents.
+        do it in plans 
+        You coordinate the following specialist agents:
+        - flight_agent
+        - hotel_agent
+        - transport_agent
+        - activities_agent
+        - payment_agent
 
-    You have three specialist agents:
+        For every complete travel-planning request:
 
-    1. flight_agent:
-       Searches and compares flights.
+        1. Identify which services the user requested.
+        2. Delegate flight searches to flight_agent.
+        3. Delegate hotel searches to hotel_agent.
+        4. Delegate airport transfer searches to transport_agent.
+        5. Delegate activity searches to activities_agent.
+        6. Collect the results from all requested agents.
+        7. Combine the results into one organized travel plan.
+        8. Calculate an estimated total from the actual returned prices.
 
-    2. hotel_agent:
-       Searches and compares hotels.
+        Do not stop after receiving the result from one agent.
+        Do not invent results if an agent fails.
+        Clearly report any agent that could not provide a result.
 
-    3. transport_agent:
-       Finds airport transfer vehicles and estimates fares.
-
-    Responsibilities:
-
-    - Understand the user's travel requirements.
-    - Delegate each request to the appropriate specialist.
-    - Pass all required information to the specialist.
-    - Wait for their responses.
-    - Combine their results into a clear travel summary.
-    - Never invent prices or availability.
-    - Never claim that anything is booked.
-
-    For flights, collect:
-    - Origin
-    - Destination
-    - Travel date
-
-    For hotels, collect:
-    - City
-    - Check-in
-    - Check-out
-    - Guests
-
-    For transport, collect:
-    - Airport
-    - Destination
-    - Passengers
-    - Luggage count
-    - Preferred vehicle, if specified
-
-    Ask for missing essential information.
+        IMPORTANT:
+        - Payment must only happen after showing the user the total
+        and receiving explicit approval.
+        - Never claim that a real booking or payment was completed.
     """,
     sub_agents=[
         flight_agent,
         hotel_agent,
-        transport_agent
+        transport_agent,
+        activities_agent,
+        payment_agent
     ]
 )
