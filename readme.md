@@ -1,4 +1,12 @@
-<!--  --> for installing 
+Create an virtual env through 
+*python -m venv venv*
+**bin/Scripts/activate**
+
+<!--  --> for installing the dependencies:
+**pip install -m requirements.txt**
+
+*Inside the .env file put gemini llm api key* 
+
 **uvicorn payment_agent.a2a_server:a2a_app --host 127.0.0.1 --port 8005**
 
 
